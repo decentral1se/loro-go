@@ -1,3 +1,5 @@
+//go:build !skiplibs
+
 package loro
 
 // #cgo darwin,amd64 LDFLAGS: -L${SRCDIR}/libs/x86_64-apple-darwin -lloro
