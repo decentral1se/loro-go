@@ -7,7 +7,7 @@ RUST_FOLDER="$THIS_SCRIPT_DIR/../loro-go"
 FFI_FOLDER="$THIS_SCRIPT_DIR/../loro-ffi"
 GO_FOLDER="$THIS_SCRIPT_DIR/../"
 
-TARGETS="x86_64-unknown-linux-musl aarch64-unknown-linux-musl aarch64-apple-darwin x86_64-apple-darwin"
+TARGETS="x86_64-unknown-linux-musl" # aarch64-unknown-linux-musl aarch64-apple-darwin x86_64-apple-darwin"
 
 if ! command -v cross &> /dev/null; then
     echo "▸ Cross tool not found, installing"
@@ -38,10 +38,11 @@ cp -r "${RUST_FOLDER}/target/go/loro/" "${GO_FOLDER}"
 export RUSTFLAGS="-C target-feature=+crt-static"
 
 for TARGET in $TARGETS; do
-    echo "▸ Building for $TARGET"
+  echo "▸ Building for $TARGET"
     
-	cross build --manifest-path "$RUST_FOLDER/Cargo.toml" --target "$TARGET" --lib --locked --release
+  export RUSTFLAGS="-Zstaticlib-rename-internal-symbols -Zstaticlib-hide-internal-symbols"
+  cross +nightly-2026-09-25 build --manifest-path "$RUST_FOLDER/Cargo.toml" --target "$TARGET" --lib --locked --release
 
-	mkdir -p "${GO_FOLDER}/libs/${TARGET}"
-	cp "${RUST_FOLDER}/target/${TARGET}/release/${LIB_NAME}" "${GO_FOLDER}/libs/${TARGET}/${LIB_NAME}"
+  mkdir -p "${GO_FOLDER}/libs/${TARGET}"
+  cp "${RUST_FOLDER}/target/${TARGET}/release/${LIB_NAME}" "${GO_FOLDER}/libs/${TARGET}/${LIB_NAME}"
 done
